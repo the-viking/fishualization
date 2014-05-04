@@ -12,7 +12,7 @@ float oneFish;
 void setup() {
   fishSizeNum= -10;
   size(1040, 1060);
-  FlockSize = 150;
+
   // load in data from csv, add it to Year array
   years = new ArrayList<Year>();
   data = loadTable("total_tons_by_year.csv", "header");
@@ -45,7 +45,6 @@ void draw() {
   background(255,255,255);
   textSize(25);
   text(selYear + "", width - 80, 35);
-  shape( fish, 10, 10, 30, 30);
   textSize(15);
   text(" = " + oneFish + " tons of fish", width - 80, 55);
   flock.run();
@@ -94,6 +93,7 @@ class Boid {
   float r;
   float maxforce;    // Maximum steering force
   float maxspeed;    // Maximum speed
+  float SimSpeed;
 
     Boid(float x, float y) {
     acceleration = new PVector(0, 0);
