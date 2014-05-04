@@ -1,17 +1,20 @@
 Flock flock;
 PShape fish;
-int maxFish = 40;
+PShape dollar;
+int maxFish = 400;
 int max = 0;
 ArrayList<Year> years;
 Table data;
 int selYear = 1945;
 int curr_num;
 float oneFish;
+int weight;
 
 void setup() {
   size(1040, 1060);
   // load in data from csv, add it to Year array
   years = new ArrayList<Year>();
+  // data downloaded from http://statice.is/Statistics/Fisheries-and-agriculture/Catch-and-value-of-catch , manually cleaned
   data = loadTable("total_tons_by_year.csv", "header");
   for (TableRow row : data.rows()) {
     int total = row.getInt("Total");
@@ -25,10 +28,12 @@ void setup() {
   }
   flock = new Flock();
   fish = loadShape("Fish.svg");
+  dollar = loadShape("Dollar.svg");
   //Load dollar shape 
   //Load fish component shapes
   
   Year selected_year = years.get(selYear - 1945);
+  weight = selected_year.total_weight;
   float num_fish = maxFish * selected_year.total_weight / max;
   oneFish = max / maxFish;
   int num = (int) num_fish;
@@ -42,11 +47,17 @@ void setup() {
 
 void draw() {
   background(255,255,255);
+  // display selected year
+  fill(0);
+  println(weight);
   textSize(25);
   text(selYear + "", width - 80, 35);
+  textSize(15);
+  text(weight + " tons of fish caught", 18, 60);
+  // display key to how many tons of fish each fish on-screen represents
   shape( fish, 10, 10, 30, 30);
   textSize(15);
-  text(" = " + oneFish + " tons of fish", width - 80, 55);
+  text(" = " + oneFish + " tons of fish", 40, 25);
   flock.run();
 }
 
@@ -59,6 +70,7 @@ void keyPressed() {
       selYear++;
     }
     Year selected_year = years.get(selYear - 1945);
+    weight = selected_year.total_weight;
   float num_fish = maxFish * selected_year.total_weight / max;
   int num = (int) num_fish;
   if (curr_num < num) {
@@ -93,8 +105,10 @@ class Boid {
   float r;
   float maxforce;    // Maximum steering force
   float maxspeed;    // Maximum speed
+  PShape shape;
 
     Boid(float x, float y) {
+      shape = fish;
     acceleration = new PVector(0, 0);
 
     // This is a new PVector method not yet implemented in JS
@@ -108,6 +122,10 @@ class Boid {
     r = 2.0;
     maxspeed = 6;
     maxforce = 0.038;
+  }
+  
+  void change() {
+    shape = dollar;
   }
 
   void run(ArrayList<Boid> boids) {
@@ -176,7 +194,7 @@ class Boid {
     pushMatrix();
     translate(location.x, location.y);
     rotate(theta);
-    shape( fish, 10, 10, 30, 30);
+    shape( shape, 10, 10, 30, 30);
     
 //    beginShape(TRIANGLES);
 //    vertex (0, -r*2);
