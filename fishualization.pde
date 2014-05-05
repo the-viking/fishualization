@@ -1,20 +1,20 @@
 Flock flock;
-PShape fish;
-PShape dollar;
-int maxFish = 400;
+PImage fish;
+float fishSizeNum;
+int maxFish = 40;
 int max = 0;
 ArrayList<Year> years;
 Table data;
 int selYear = 1945;
 int curr_num;
 float oneFish;
-int weight;
 
 void setup() {
+  fishSizeNum= -10;
   size(1040, 1060);
+
   // load in data from csv, add it to Year array
   years = new ArrayList<Year>();
-  // data downloaded from http://statice.is/Statistics/Fisheries-and-agriculture/Catch-and-value-of-catch , manually cleaned
   data = loadTable("total_tons_by_year.csv", "header");
   for (TableRow row : data.rows()) {
     int total = row.getInt("Total");
@@ -27,13 +27,9 @@ void setup() {
     }
   }
   flock = new Flock();
-  fish = loadShape("Fish.svg");
-  dollar = loadShape("Dollar.svg");
-  //Load dollar shape 
-  //Load fish component shapes
+  fish = loadImage("SmallBlueTopFish.png");
   
   Year selected_year = years.get(selYear - 1945);
-  weight = selected_year.total_weight;
   float num_fish = maxFish * selected_year.total_weight / max;
   oneFish = max / maxFish;
   int num = (int) num_fish;
@@ -47,17 +43,10 @@ void setup() {
 
 void draw() {
   background(255,255,255);
-  // display selected year
-  fill(0);
-  println(weight);
   textSize(25);
   text(selYear + "", width - 80, 35);
   textSize(15);
-  text(weight + " tons of fish caught", 18, 60);
-  // display key to how many tons of fish each fish on-screen represents
-  shape( fish, 10, 10, 30, 30);
-  textSize(15);
-  text(" = " + oneFish + " tons of fish", 40, 25);
+  text(" = " + oneFish + " tons of fish", width - 80, 55);
   flock.run();
 }
 
@@ -70,7 +59,6 @@ void keyPressed() {
       selYear++;
     }
     Year selected_year = years.get(selYear - 1945);
-    weight = selected_year.total_weight;
   float num_fish = maxFish * selected_year.total_weight / max;
   int num = (int) num_fish;
   if (curr_num < num) {
@@ -105,10 +93,9 @@ class Boid {
   float r;
   float maxforce;    // Maximum steering force
   float maxspeed;    // Maximum speed
-  PShape shape;
+  float SimSpeed;
 
     Boid(float x, float y) {
-      shape = fish;
     acceleration = new PVector(0, 0);
 
     // This is a new PVector method not yet implemented in JS
@@ -118,14 +105,13 @@ class Boid {
     float angle = random(TWO_PI);
     velocity = new PVector(cos(angle), sin(angle));
 
+
+    SimSpeed = 2.0;
+    
     location = new PVector(x, y);
-    r = 2.0;
-    maxspeed = 6;
-    maxforce = 0.038;
-  }
-  
-  void change() {
-    shape = dollar;
+    r = 35.0;
+    maxspeed = (SimSpeed*2);
+    maxforce = (SimSpeed/30.3);
   }
 
   void run(ArrayList<Boid> boids) {
@@ -188,20 +174,15 @@ class Boid {
     // Draw a triangle rotated in the direction of velocity
     float theta = velocity.heading2D() + radians(90);
     // heading2D() above is now heading() but leaving old syntax until Processing.js catches up
-    
-    fill(200, 100);
-    stroke(255);
+     
     pushMatrix();
     translate(location.x, location.y);
     rotate(theta);
-    shape( shape, 10, 10, 30, 30);
     
-//    beginShape(TRIANGLES);
-//    vertex (0, -r*2);
-//    vertex (-r, r*2);
-//    vertex (r, r*2);
-//    endShape();
+    //shape( fish, fishSizeNum, fishSizeNum, 30, 30);
+    image (fish, 0 , -7);
     popMatrix();
+    
   }
 
   // Wraparound
@@ -215,7 +196,7 @@ class Boid {
   // Separation
   // Method checks for nearby boids and steers away
   PVector separate (ArrayList<Boid> boids) {
-    float desiredseparation = 25.0f;
+    float desiredseparation = 25.5f;
     PVector steer = new PVector(0, 0, 0);
     int count = 0;
     // For every boid in the system, check if it's too close
