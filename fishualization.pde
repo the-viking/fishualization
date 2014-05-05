@@ -8,6 +8,7 @@ Table data;
 int selYear = 1945;
 int curr_num;
 float oneFish;
+int curr_weight;
 
 void setup() {
   fishSizeNum= -10;
@@ -15,21 +16,23 @@ void setup() {
 
   // load in data from csv, add it to Year array
   years = new ArrayList<Year>();
-  data = loadTable("total_tons_by_year.csv", "header");
+  data = loadTable("value_weight_year.csv", "header");
   for (TableRow row : data.rows()) {
-    int total = row.getInt("Total");
-    String year = row.getString("Year");
-    Year nYear = new Year(year, total);
+    int year_weight = row.getInt("weight");
+    String year = row.getString("year");
+    int year_value = row.getInt("value");
+    Year nYear = new Year(year, year_weight, year_value);
     years.add(nYear);
     // record maximum total weight
-    if (total > max) {
-      max = total;
+    if (year_weight > max) {
+      max = year_weight;
     }
   }
   flock = new Flock();
   fish = loadImage("SmallBlueTopFish.png");
   
   Year selected_year = years.get(selYear - 1945);
+  curr_weight = selected_year.total_weight;
   float num_fish = maxFish * selected_year.total_weight / max;
   oneFish = max / maxFish;
   int num = (int) num_fish;
@@ -43,14 +46,21 @@ void setup() {
 
 void draw() {
   background(255,255,255);
+  fill(0);
   textSize(25);
   text(selYear + "", width - 80, 35);
+  // display key to how many tons of fish each fish on-screen represents
+  image (fish, 10, 10);
   textSize(15);
-  text(" = " + oneFish + " tons of fish", width - 80, 55);
+  text(" = " + oneFish + " tons of fish", 40, 25);
+  fill(0, 0, 255, 10);
+  textSize(220);
+  text(curr_weight + "", 30, height/2 - 80);
   flock.run();
 }
 
 void keyPressed() {
+  println(curr_weight);
   if (key == CODED) {
     if (keyCode == LEFT && selYear > 1945) {
       selYear--;
@@ -59,6 +69,7 @@ void keyPressed() {
       selYear++;
     }
     Year selected_year = years.get(selYear - 1945);
+    curr_weight = selected_year.total_weight;
   float num_fish = maxFish * selected_year.total_weight / max;
   int num = (int) num_fish;
   if (curr_num < num) {
@@ -316,10 +327,14 @@ class Flock {
 
 class Year {
   String year;
+  // weight of the catch, in tonnes
   int total_weight;
+  // value of the catch, in 1000 ISK
+  int value;
   
-  Year(String the_year, int weight) {
+  Year(String the_year, int weight, int the_value) {
     year = the_year;
     total_weight = weight;
+    value = the_value;
   }
 }
