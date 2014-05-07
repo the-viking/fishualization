@@ -83,17 +83,7 @@ void draw() {
   textSize(25);
   text(selYear + "", width - 80, 35);
   
-  if ( level % 2 == 1 ) {
-    // display key to how many tons of fish each fish on-screen represents
-    image (fish, 10, 10);
-    textSize(15);
-    text(" = " + oneFish + " tons of fish", 40, 25);
-  }
-  else {  
-    image (dollar, 10, 10);
-    textSize(15);
-    text(" = " + curr_value / flock.getSize() + " Icelandic króna", 40, 25);
-  }
+  
   // display total weight or value as large transparent text in background
   fill(0, 0, 255, 30);
   textSize(200);
@@ -105,6 +95,24 @@ void draw() {
     text("$" + curr_value, 30, height/2 - 95);
   }
   flock.run();
+  
+  ///Everything below this comment will be rendered infront of the swimming fish
+  
+  fill(0);
+  if ( level % 2 == 1 ) {
+    // display key to how many tons of fish each fish on-screen represents
+    image (fish, 10, 10);
+    textSize(15);
+    text(" = " + oneFish + " tons of fish", 40, 25);
+  }
+  else {  
+    image (dollar, 10, 10);
+    textSize(15);
+    text(" = " + curr_value / flock.getSize() + " Icelandic króna", 40, 25);
+  }
+  // display the year on screen
+  textSize(25);
+  text(selYear + "", width - 80, 35);
 }
 
 void keyPressed() {
