@@ -1,19 +1,29 @@
 Flock flock;
+boolean trails = false;
 PImage fish;
+PImage dollar;
+PImage backgroundImg;
+PImage img;
 float fishSizeNum;
 int maxFish = 40;
 int max = 0;
 ArrayList<Year> years;
 Table data;
-int selYear = 1945;
+int firstYear = 1993;
+int selYear = firstYear;
 int curr_num;
 float oneFish;
 int curr_weight;
+int curr_value;
+// odd levels are fish, even dollars
+int level = 1;
+int[][] pointsCovered;
 
 void setup() {
-  fishSizeNum= -10;
+  fishSizeNum = -10;
   size(1040, 1060);
-
+  pointsCovered = new int[width][height];
+  smooth();
   // load in data from csv, add it to Year array
   years = new ArrayList<Year>();
   data = loadTable("value_weight_year.csv", "header");
@@ -30,66 +40,107 @@ void setup() {
   }
   flock = new Flock();
   fish = loadImage("SmallBlueTopFish.png");
-  
-  Year selected_year = years.get(selYear - 1945);
+  dollar = loadImage("DollarBilimage.png");
+  backgroundImg = loadImage("rubber-duck.jpg");
+  img = createImage(backgroundImg.width, backgroundImg.height, RGB);
+  for (int i = 0; i < backgroundImg.pixels.length; i++) {
+    color c = color(red(backgroundImg.pixels[i]), green(backgroundImg.pixels[i]), blue(backgroundImg.pixels[i]), 50);
+    img.pixels[i] = c;
+  }
+
+  Year selected_year = years.get(selYear - firstYear);
   curr_weight = selected_year.total_weight;
+  curr_value = selected_year.value;
+  // calculate the number of fish in the flock, scaled to the maximum weight
   float num_fish = maxFish * selected_year.total_weight / max;
+  // calculate the weight that one fish represents
   oneFish = max / maxFish;
   int num = (int) num_fish;
   curr_num = num;
   // Add an initial set of boids into the system
   for (int i = 0; i < num; i++) {
-    flock.addBoid(new Boid(width/2,height/2));
+    flock.addBoid(new Boid(width/2, height/2, fish));
   }
   fill(0);
+  //image (img, 50, 50);
 }
 
 void draw() {
-  background(255,255,255);
+  //if (frameCount % 10 == 0) {
+    // if trails is set, draw a translucent rectangle instead of an opaque background
+    if(trails) {
+      fill(255, 255, 255, 10);
+      rect(0, 0, width, height);
+    }
+    else {
+    background(255,255,255);
+    }
   fill(0);
+  // display the year on screen
   textSize(25);
   text(selYear + "", width - 80, 35);
+  
   // display key to how many tons of fish each fish on-screen represents
   image (fish, 10, 10);
   textSize(15);
   text(" = " + oneFish + " tons of fish", 40, 25);
-  fill(0, 0, 255, 10);
-  textSize(220);
-  text(curr_weight + "", 30, height/2 - 80);
+  
+  // display total weight or value as large transparent text in background
+  fill(0, 0, 255, 30);
+  textSize(200);
+  if (level % 2 == 1) {
+    text(curr_weight + "", 30, height/2 - 95);
+    text("tons", 320, height/2 + 65);
+  }
+  else {
+    text("$" + curr_value, 30, height/2 - 95);
+  }
   flock.run();
 }
 
 void keyPressed() {
-  println(curr_weight);
+  // when space bar is pressed, switch flock from dollars to fish or vice verse
+  if (key==' ') {
+    level++;
+    flock.breakUp();
+  }
+  // change trails setting when a key is pressed
+  if (key=='a') {
+    trails = !trails;
+  }
   if (key == CODED) {
-    if (keyCode == LEFT && selYear > 1945) {
+    // navigate year with arrow keys
+    if (keyCode == LEFT && selYear > firstYear) {
       selYear--;
     }
     if (keyCode == RIGHT && selYear < 2012) {
       selYear++;
     }
-    Year selected_year = years.get(selYear - 1945);
+    // recallibrate flock for selected year
+    Year selected_year = years.get(selYear - firstYear);
     curr_weight = selected_year.total_weight;
-  float num_fish = maxFish * selected_year.total_weight / max;
-  int num = (int) num_fish;
-  if (curr_num < num) {
-    for (int i = 0; i < num - curr_num; i++) {
-      flock.addBoid(new Boid(width/2,height/2));
+    curr_value = selected_year.value;
+    float num_fish = maxFish * selected_year.total_weight / max;
+    int num = (int) num_fish;
+    // add fish if there should be more this year than the one previously selected
+    if (curr_num < num) {
+      for (int i = 0; i < num - curr_num; i++) {
+        flock.addBoid(new Boid(width/2, height/2, fish));
+      }
     }
-  }
-  else if (curr_num > num) {
-    for (int i = 0; i < curr_num - num; i++) {
-      flock.removeLast();
+    // remove fish if there should be less this year than the one previously selected
+    else if (curr_num > num) {
+      for (int i = 0; i < curr_num - num; i++) {
+        flock.removeLast();
+      }
     }
+    curr_num = num;
   }
-  curr_num = num;
-  }
-  
 }
 
-// Add a new boid into the System
+// Add a new boid when mouse is pressed
 void mousePressed() {
-  flock.addBoid(new Boid(mouseX,mouseY));
+  flock.addBoid(new Boid(mouseX, mouseY, fish));
 }
 
 
@@ -105,10 +156,11 @@ class Boid {
   float maxforce;    // Maximum steering force
   float maxspeed;    // Maximum speed
   float SimSpeed;
+  PImage icon;  // Image to represent the boid
 
-    Boid(float x, float y) {
+  Boid(float x, float y, PImage display) {
     acceleration = new PVector(0, 0);
-
+  icon = display;
     // This is a new PVector method not yet implemented in JS
     // velocity = PVector.random2D();
 
@@ -118,7 +170,7 @@ class Boid {
 
 
     SimSpeed = 2.0;
-    
+
     location = new PVector(x, y);
     r = 35.0;
     maxspeed = (SimSpeed*2);
@@ -182,18 +234,22 @@ class Boid {
   }
 
   void render() {
+    if ((location.x > 0 && location.x < width ) && (location.y > 0 && location.y < height)) {
+      if(pointsCovered[int(location.x)][int(location.y)] <= 255) {
+        pointsCovered[int(location.x)][int(location.y)] ++;
+      }
+    }
     // Draw a triangle rotated in the direction of velocity
     float theta = velocity.heading2D() + radians(90);
     // heading2D() above is now heading() but leaving old syntax until Processing.js catches up
-     
+
     pushMatrix();
     translate(location.x, location.y);
     rotate(theta);
-    
+
     //shape( fish, fishSizeNum, fishSizeNum, 30, 30);
-    image (fish, 0 , -7);
+    image (icon, 0, -7);
     popMatrix();
-    
   }
 
   // Wraparound
@@ -305,7 +361,7 @@ class Boid {
 class Flock {
   ArrayList<Boid> boids; // An ArrayList for all the boids
 
-  Flock() {
+    Flock() {
     boids = new ArrayList<Boid>(); // Initialize the ArrayList
   }
 
@@ -318,11 +374,46 @@ class Flock {
   void addBoid(Boid b) {
     boids.add(b);
   }
-  
+
   void removeLast() {
     boids.remove(boids.get(boids.size() - 1));
   }
-
+  
+  void replace() {
+    Boid last = boids.get(boids.size() - 1);
+    if (level % 2 == 0) {
+      boids.add(0, new Boid(last.location.x + 4, last.location.y, dollar));
+      boids.add(0, new Boid(last.location.x - 4, last.location.y, dollar));
+    }
+    else {
+      boids.add(0, new Boid(last.location.x, last.location.y, fish));
+    }
+    boids.remove(last);
+  }
+  void breakUp() {
+    int numBoids = boids.size();
+    for( int i = 0; i < numBoids; i++) {
+      replace();
+    }
+  }
+  /*
+  void breakUp() {
+    ArrayList<Boid> boidsCopy = boids;
+    for( int i = 0; i < boidsCopy.size(); i++) {
+      boids.remove(boids.get(i));
+    }
+    println(boidsCopy.size());
+    
+    for( int i = 0; i < boidsCopy.size(); i++) {
+      int x = int(boidsCopy.get(i).location.x);
+      int y = int(boidsCopy.get(i).location.y);
+      boids.add(new Boid(0,0));
+      //boids.add(new Boid(x, y-5));
+      //boids.add(new Boid(x+5, y+5, dollar));
+      //boids.add(new Boid(x-5, y+5, dollar));
+    }
+    
+  }*/
 }
 
 class Year {
@@ -331,10 +422,11 @@ class Year {
   int total_weight;
   // value of the catch, in 1000 ISK
   int value;
-  
+
   Year(String the_year, int weight, int the_value) {
     year = the_year;
     total_weight = weight;
     value = the_value;
   }
 }
+
