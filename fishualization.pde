@@ -153,10 +153,13 @@ void keyPressed() {
   }
 }
 
-// Add a new boid when mouse is pressed
-void mousePressed() {
-  flock.addBoid(new Boid(mouseX, mouseY, fish));
-}
+//// Add a new boid when mouse is pressed
+//void mousePressed() {
+//  flock.addBoid(new Boid(mouseX, mouseY, fish));
+//}
+
+
+
 
 
 
@@ -209,14 +212,17 @@ class Boid {
     PVector sep = separate(boids);   // Separation
     PVector ali = align(boids);      // Alignment
     PVector coh = cohesion(boids);   // Cohesion
+    PVector mou = mouseAttraction();  // Mouse attraction
     // Arbitrarily weight these forces
     sep.mult(1.5);
     ali.mult(1.0);
     coh.mult(1.0);
+    mou.mult(1.0);
     // Add the force vectors to acceleration
     applyForce(sep);
     applyForce(ali);
     applyForce(coh);
+    applyForce(mou);
   }
 
   // Method to update location
@@ -273,6 +279,24 @@ class Boid {
     if (location.y < -r) location.y = height+r;
     if (location.x > width+r) location.x = -r;
     if (location.y > height+r) location.y = -r;
+  }
+  
+  PVector mouseAttraction(){
+    PVector steer = new PVector(0,0,0);
+    if(mousePressed){
+      steer = new PVector(mouseX - location.x, mouseY - location.y, 0);    
+    }
+    
+     // As long as the vector is greater than 0
+    if (steer.mag() > 0) {
+      // Implement Reynolds: Steering = Desired - Velocity
+      steer.normalize();
+      steer.mult(maxspeed);
+      steer.sub(vel);
+      steer.limit(maxforce);
+    }
+    
+    return( steer );
   }
 
   // Separation
