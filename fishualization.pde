@@ -189,7 +189,7 @@ class Boid {
     location = new PVector(x, y);
     r = 35.0;
     maxspeed = (SimSpeed*2);
-    maxforce = (SimSpeed/30.3);
+    maxforce = (SimSpeed/33.3);
   }
 
   void run(ArrayList<Boid> boids) {
