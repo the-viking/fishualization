@@ -45,7 +45,7 @@ void setup() {
   }
   flock = new Flock();
   fish = loadImage("SmallBlueTopFish.png");
-  dollar = loadImage("DollarBilimage.png");
+  dollar = loadImage("IcelandKron.png");
   backgroundImg = loadImage("rubber-duck.jpg");
   img = createImage(backgroundImg.width, backgroundImg.height, RGB);
   for (int i = 0; i < backgroundImg.pixels.length; i++) {
