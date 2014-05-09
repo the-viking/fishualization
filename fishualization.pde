@@ -439,6 +439,7 @@ class Boid {
 
 class Flock {
   ArrayList<Boid> boids; // An ArrayList for all the boids
+  String mode = "fish";
 
     Flock() {
     boids = new ArrayList<Boid>(); // Initialize the ArrayList
