@@ -22,10 +22,7 @@ int[][] pointsCovered;
 int imgY = 50;
 int imgX = 50;
 float zoom = 1;
-
-//Code to make fish separate
-float Spar = 1.5;
-int timer;
+PImage displayShape;
 
 //Code to make fish separate
 float Spar = 1.5;
