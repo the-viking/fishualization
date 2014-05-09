@@ -286,15 +286,19 @@ class Boid {
     if(mousePressed){
       steer = new PVector(mouseX - location.x, mouseY - location.y, 0);    
     }
-    
      // As long as the vector is greater than 0
     if (steer.mag() > 0) {
+      // First two lines of code below could be condensed with new PVector setMag() method
+      // Not using this method until Processing.js catches up
+      // steer.setMag(maxspeed);
+
       // Implement Reynolds: Steering = Desired - Velocity
       steer.normalize();
       steer.mult(maxspeed);
-      steer.sub(vel);
+      steer.sub(velocity);
       steer.limit(maxforce);
     }
+    
     
     return( steer );
   }
