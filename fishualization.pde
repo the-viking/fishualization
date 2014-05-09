@@ -18,6 +18,7 @@ int curr_weight;
 int curr_value;
 // odd levels are fish, even dollars
 int level = 1;
+PImage displayShape;
 int[][] pointsCovered;
 int imgY = 50;
 int imgX = 50;
@@ -47,6 +48,7 @@ void setup() {
   flock = new Flock();
   fish = loadImage("SmallBlueTopFish.png");
   dollar = loadImage("IcelandKron.png");
+  displayShape = fish;
   backgroundImg = loadImage("rubber-duck.jpg");
   img = createImage(backgroundImg.width, backgroundImg.height, RGB);
   pointsCovered = new int[img.width][img.height];
@@ -154,6 +156,12 @@ void keyPressed() {
     trails = !trails;
   }
   if (key == CODED) {
+         if ( level % 2 == 0 ){
+       displayShape = dollar;
+     }
+     else {
+       displayShape = fish;
+     }
     // navigate year with arrow keys
     if (keyCode == LEFT && selYear > firstYear) {
       selYear--;
@@ -169,7 +177,7 @@ void keyPressed() {
     // add fish if there should be more this year than the one previously selected
     if (flock.getSize() < num_fish) {
       for (int i = 0; i < num_fish - flock.getSize(); i++) {
-        flock.addBoid(new Boid(width/2, height/2, fish));
+        flock.addBoid(new Boid(width/2, height/2, displayShape));
       }
     }
     // remove fish if there should be less this year than the one previously selected
@@ -466,8 +474,15 @@ class Flock {
   
   void breakUp() {
     int numBoids = boids.size();
+     if ( level % 2 == 0 ){
+       displayShape = dollar;
+     }
+     else {
+       displayShape = fish;
+     }
     for( int i = 0; i < numBoids; i++) {
       if ( i % 2 == 0 ) {
+        displayShape = fish;
         replace(true);
       }
       else {
