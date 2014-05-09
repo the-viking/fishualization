@@ -25,7 +25,7 @@ int imgX = 50;
 
 void setup() {
   fishSizeNum = -10;
-  size(1040, 1060);
+  size(displayWidth, displayHeight);
   smooth();
   // load in data from csv, add it to Year array
   years = new ArrayList<Year>();
@@ -114,14 +114,14 @@ void draw() {
   textSize(200);
   if ( frameCount % 10 == 0 || !trails ) {
   if (level % 2 == 1) {
-    text(curr_weight / 1000 + "", width/2 - 300, height/2 - 95);
+    text(curr_weight / 1000 + "", width/2 - 300, height/2);
     textSize(75);
-    text("kilotonnes", 290, height/2);
+    text("kilotonnes", (width / 2) - 240, height/2 + 80);
   }
   else {
-    text(curr_value / 1000, 200, height/2 - 95);
+    text(curr_value / 1000, width / 2 -300, height/2 );
     textSize(75);
-    text(" million Icelandic krona", 90, height/2);
+    text(" million Icelandic krona", (width/2) - 250, (height/2) + 100);
   }
   }
   flock.run();
