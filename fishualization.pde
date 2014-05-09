@@ -18,14 +18,19 @@ int curr_weight;
 int curr_value;
 // odd levels are fish, even dollars
 int level = 1;
-PImage displayShape;
 int[][] pointsCovered;
 int imgY = 50;
 int imgX = 50;
+float zoom = 1;
+PImage displayShape;
+
+//Code to make fish separate
+float Spar = 1.5;
+int timer;
 
 void setup() {
   fishSizeNum = -10;
-  size(displayWidth, displayHeight);
+  size(1040, 1060);
   smooth();
   // load in data from csv, add it to Year array
   years = new ArrayList<Year>();
@@ -48,7 +53,6 @@ void setup() {
   flock = new Flock();
   fish = loadImage("SmallBlueTopFish.png");
   dollar = loadImage("IcelandKron.png");
-  displayShape = fish;
   backgroundImg = loadImage("rubber-duck.jpg");
   img = createImage(backgroundImg.width, backgroundImg.height, RGB);
   pointsCovered = new int[img.width][img.height];
@@ -73,6 +77,9 @@ void setup() {
 }
 
 void draw() {
+scale (zoom);
+  //(fish, -140, -140);
+
   if ((mouseX > imgX && mouseX < imgX + img.width ) && (mouseY > imgY && mouseY < imgY + img.height)) {
       if(pointsCovered[mouseX - imgX][mouseY - imgY] <= 255) {
         pointsCovered[mouseX - imgX][mouseY - imgY] += 10;
@@ -114,14 +121,14 @@ void draw() {
   textSize(200);
   if ( frameCount % 10 == 0 || !trails ) {
   if (level % 2 == 1) {
-    text(curr_weight / 1000 + "", width/2 - 300, height/2);
+    text(curr_weight / 1000 + "", width/2 - 300, height/2 - 95);
     textSize(75);
-    text("kilotonnes", (width / 2) - 240, height/2 + 80);
+    text("kilotonnes", 290, height/2);
   }
   else {
-    text(curr_value / 1000, width / 2 -300, height/2 );
+    text(curr_value / 1000, 200, height/2 - 95);
     textSize(75);
-    text(" million Icelandic krona", (width/2) - 250, (height/2) + 100);
+    text(" million Icelandic krona", 90, height/2);
   }
   }
   flock.run();
@@ -156,18 +163,20 @@ void keyPressed() {
     trails = !trails;
   }
   if (key == CODED) {
-         if ( level % 2 == 0 ){
-       displayShape = dollar;
-     }
-     else {
-       displayShape = fish;
-     }
     // navigate year with arrow keys
     if (keyCode == LEFT && selYear > firstYear) {
       selYear--;
     }
-    if (keyCode == RIGHT && selYear < 2012) {
+    else if (keyCode == RIGHT && selYear < 2012) {
       selYear++;
+    }
+    else if (keyCode == UP) 
+    {
+      zoom += .03;
+    }
+    else if (keyCode == DOWN) 
+    {
+      zoom -= .03;
     }
     // recallibrate flock for selected year
     Year selected_year = years.get(selYear - firstYear);
@@ -177,7 +186,7 @@ void keyPressed() {
     // add fish if there should be more this year than the one previously selected
     if (flock.getSize() < num_fish) {
       for (int i = 0; i < num_fish - flock.getSize(); i++) {
-        flock.addBoid(new Boid(width/2, height/2, displayShape));
+        flock.addBoid(new Boid(width/2, height/2, fish));
       }
     }
     // remove fish if there should be less this year than the one previously selected
@@ -250,7 +259,7 @@ class Boid {
     PVector coh = cohesion(boids);   // Cohesion
     PVector mou = mouseAttraction();  // Mouse attraction
     // Arbitrarily weight these forces
-    sep.mult(1.5);
+    sep.mult(Spar);
     ali.mult(1.0);
     coh.mult(1.0);
     mou.mult(1.0);
@@ -270,6 +279,15 @@ class Boid {
     location.add(velocity);
     // Reset accelertion to 0 each cycle
     acceleration.mult(0);
+    //Loop creates momentary separation of fish on change in separation value from origional 1.5
+    if(Spar != 1.5){
+      timer = timer +1;
+      print (timer);
+      if(timer == 6000){ 
+       Spar = 1.5;
+       timer = 0;
+      }
+    }
   }
 
   // A method that calculates and applies a steering force towards a target
@@ -475,15 +493,10 @@ class Flock {
   
   void breakUp() {
     int numBoids = boids.size();
-     if ( level % 2 == 0 ){
-       displayShape = dollar;
-     }
-     else {
-       displayShape = fish;
-     }
     for( int i = 0; i < numBoids; i++) {
       if ( i % 2 == 0 ) {
         displayShape = fish;
+        Spar = 3.1;
         replace(true);
       }
       else {
@@ -509,4 +522,3 @@ class Year {
     value = the_value;
   }
 }
-
