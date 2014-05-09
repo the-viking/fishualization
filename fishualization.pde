@@ -496,7 +496,10 @@ class Flock {
     for( int i = 0; i < numBoids; i++) {
       if ( i % 2 == 0 ) {
         displayShape = fish;
+<<<<<<< HEAD
         Spar = 3.1;
+=======
+>>>>>>> FETCH_HEAD
         replace(true);
       }
       else {
