@@ -19,11 +19,12 @@ int curr_value;
 // odd levels are fish, even dollars
 int level = 1;
 int[][] pointsCovered;
+int imgY = 50;
+int imgX = 50;
 
 void setup() {
   fishSizeNum = -10;
   size(1040, 1060);
-  pointsCovered = new int[width][height];
   smooth();
   // load in data from csv, add it to Year array
   years = new ArrayList<Year>();
@@ -48,9 +49,11 @@ void setup() {
   dollar = loadImage("DollarBilimage.png");
   backgroundImg = loadImage("rubber-duck.jpg");
   img = createImage(backgroundImg.width, backgroundImg.height, RGB);
-  for (int i = 0; i < backgroundImg.pixels.length; i++) {
-    color c = color(red(backgroundImg.pixels[i]), green(backgroundImg.pixels[i]), blue(backgroundImg.pixels[i]), 50);
-    img.pixels[i] = c;
+  pointsCovered = new int[img.width][img.height];
+  for (int x = 0; x < img.width; x++) {
+    for (int y = 0; y < img.height; y++) {
+      pointsCovered[x][y] = 1;
+    }
   }
 
   Year selected_year = years.get(selYear - firstYear);
@@ -65,15 +68,35 @@ void setup() {
     flock.addBoid(new Boid(width/2, height/2, fish));
   }
   fill(0);
-  //image (img, 50, 50);
 }
 
 void draw() {
+  if ((mouseX > imgX && mouseX < imgX + img.width ) && (mouseY > imgY && mouseY < imgY + img.height)) {
+      if(pointsCovered[mouseX - imgX][mouseY - imgY] <= 255) {
+        pointsCovered[mouseX - imgX][mouseY - imgY] += 10;
+        println(pointsCovered[mouseX - imgX][mouseY - imgY]);
+      }
+    }
+    if ( frameCount % 10 == 0 ) {
+      img.loadPixels();
+  for (int x = 0; x < img.width; x++) {
+    for (int y = 0; y < img.height; y++) {
+      int transparency = pointsCovered[x][y];
+      int index = y * img.width + x;
+      color c = color(red(backgroundImg.pixels[index]), green(backgroundImg.pixels[index]), blue(backgroundImg.pixels[index]), transparency);
+      img.pixels[index] = c;
+    }
+  }
+  img.updatePixels();
+    }
+  image (img, imgX, imgY);
   //if (frameCount % 10 == 0) {
     // if trails is set, draw a translucent rectangle instead of an opaque background
     if(trails) {
       fill(255, 255, 255, 10);
-      rect(0, 0, width, height);
+      if ( frameCount % 10 == 0) {
+        rect(0, 0, width, height);
+      }
     }
     else {
     background(255,255,255);
@@ -87,12 +110,17 @@ void draw() {
   // display total weight or value as large transparent text in background
   fill(0, 0, 255, 30);
   textSize(200);
+  if ( frameCount % 10 == 0 || !trails ) {
   if (level % 2 == 1) {
-    text(curr_weight + "", 30, height/2 - 95);
-    text("tons", 320, height/2 + 65);
+    text(curr_weight / 1000 + "", width/2 - 300, height/2 - 95);
+    textSize(75);
+    text("kilotonnes", 290, height/2);
   }
   else {
-    text("$" + curr_value, 30, height/2 - 95);
+    text(curr_value / 1000, 200, height/2 - 95);
+    textSize(75);
+    text(" million Icelandic krona", 90, height/2);
+  }
   }
   flock.run();
   
@@ -101,14 +129,14 @@ void draw() {
   fill(0);
   if ( level % 2 == 1 ) {
     // display key to how many tons of fish each fish on-screen represents
-    image (fish, 10, 10);
+    image (fish, 15, 10);
     textSize(15);
-    text(" = " + oneFish + " tons of fish", 40, 25);
+    text(" = " + oneFish / 1000 + " kilotonnes of fish caught", 40, 35);
   }
   else {  
-    image (dollar, 10, 10);
+    image (dollar, 15, 10);
     textSize(15);
-    text(" = " + curr_value / flock.getSize() + " Icelandic króna", 40, 25);
+    text(" = " + curr_value / (flock.getSize() * 1000) + " million ISK", 40, 35);
   }
   // display the year on screen
   textSize(25);
@@ -249,9 +277,9 @@ class Boid {
   }
 
   void render() {
-    if ((location.x > 0 && location.x < width ) && (location.y > 0 && location.y < height)) {
-      if(pointsCovered[int(location.x)][int(location.y)] <= 255) {
-        pointsCovered[int(location.x)][int(location.y)] ++;
+    if ((int(location.x) > imgX && int(location.x) < imgX + img.width ) && (int(location.y) > imgY && int(location.y) < imgY + img.height)) {
+      if(pointsCovered[int(location.x) - imgX][int(location.y) - imgY] <= 255) {
+        pointsCovered[int(location.x) - imgX][int(location.y) - imgY] += 10;
       }
     }
     // Draw a triangle rotated in the direction of velocity
@@ -394,14 +422,16 @@ class Flock {
     boids.remove(boids.get(boids.size() - 1));
   }
   
-  void replace() {
+  void replace(boolean even) {
     Boid last = boids.get(boids.size() - 1);
     if (level % 2 == 0) {
       boids.add(0, new Boid(last.location.x + 4, last.location.y, dollar));
       boids.add(0, new Boid(last.location.x - 4, last.location.y, dollar));
     }
     else {
-      boids.add(0, new Boid(last.location.x, last.location.y, fish));
+      if (even) {
+        boids.add(0, new Boid(last.location.x, last.location.y, fish));
+      }
     }
     boids.remove(last);
   }
@@ -409,37 +439,17 @@ class Flock {
   void breakUp() {
     int numBoids = boids.size();
     for( int i = 0; i < numBoids; i++) {
-      if (level % 2 == 1) {
-        if (i % 2 == 0) {
-          replace();
-        }
+      if ( i % 2 == 0 ) {
+        replace(true);
       }
       else {
-        replace();
-      }
+        replace(false);
+        }
     }
   }
   int getSize() {
     return boids.size();
   }
-  /*
-  void breakUp() {
-    ArrayList<Boid> boidsCopy = boids;
-    for( int i = 0; i < boidsCopy.size(); i++) {
-      boids.remove(boids.get(i));
-    }
-    println(boidsCopy.size());
-    
-    for( int i = 0; i < boidsCopy.size(); i++) {
-      int x = int(boidsCopy.get(i).location.x);
-      int y = int(boidsCopy.get(i).location.y);
-      boids.add(new Boid(0,0));
-      //boids.add(new Boid(x, y-5));
-      //boids.add(new Boid(x+5, y+5, dollar));
-      //boids.add(new Boid(x-5, y+5, dollar));
-    }
-    
-  }*/
 }
 
 class Year {
