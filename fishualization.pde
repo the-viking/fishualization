@@ -24,7 +24,7 @@ int level = 1;  // odd levels are fish, even dollars
 int[][] pointsCovered;
 int imgY = 50;
 int imgX = 50;
-float zoom = 1;
+float zoom = 1;  // Modulates the zoom level of the simulation
 PImage displayShape;
 float Spar = 1.5;  // Tendancy of fish in the sim to separate (This value is  temporaraly changed on swap from fish to Krona)   
 int timer;  // Controls the duration of the increased Spar value after swap
@@ -36,9 +36,10 @@ boolean trails = false;     // When set to true creates temp. trails behined fis
 PImage backgroundImg;       // An image to be renedered in the background in experimental mode
 
 
-
+// Setup
+// Handles the layout of the sim before it starts running 
 void setup() {
-  size(1040, 1060);
+  size(1040, 1060);  // Controls the size of the window with which the simulation runs
   smooth();
   // load in data from csv, add it to Year array
   years = new ArrayList<Year>();
@@ -82,7 +83,12 @@ void setup() {
     flock.addBoid(new Boid(width/2, height/2, fish));
   }
   fill(0);
-}
+}  /////////// END SETUP //////////////////
+
+
+
+
+
 
 void draw() {
 scale (zoom);
@@ -158,7 +164,11 @@ scale (zoom);
   // display the year on screen
   textSize(25);
   text(selYear + "", width - 80, 35);
-}
+}  /////////// END DRAW //////////////////
+
+
+
+
 
 void keyPressed() {
   // when space bar is pressed, switch flock from dollars to fish or vice verse
@@ -204,7 +214,11 @@ void keyPressed() {
       }
     }
   }
-}
+}  /////////// END KEYPRESSED //////////////////
+
+
+
+
 
 // The Boid class
 // Boids are the flocking body's in the simulation i.e. Fish or Krona 
@@ -278,7 +292,6 @@ class Boid {
     // The Separtation value may be modulated in siuations like break-up of fish into dollars, by changing the Spar Var
     if(Spar != 1.5){
       timer = timer +1;
-      print (timer);
       if(timer == 6000){ 
        Spar = 1.5;
        timer = 0;
@@ -434,7 +447,7 @@ class Boid {
       return new PVector(0, 0);
     }
   }
-}
+}  /////////// END BOID CLASS //////////////////
 
 
 
@@ -493,7 +506,10 @@ class Flock {
   int getSize() {
     return boids.size();
   }
-}
+}   /////////// END FLOCK CLASS //////////////////
+
+
+
 
 class Year {
   String year;
@@ -507,4 +523,4 @@ class Year {
     total_weight = weight;
     value = the_value;
   }
-}
+}  /////////// END YEAR CLASS //////////////////
