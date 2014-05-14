@@ -198,41 +198,28 @@ void keyPressed() {
   }
 }
 
-//// Add a new boid when mouse is pressed
-//void mousePressed() {
-//  flock.addBoid(new Boid(mouseX, mouseY, fish));
-//}
-
-
-
-
-
-
 // The Boid class
+//Boids are the flocking body's in the simulation i.e. Fish or Krona 
 
 class Boid {
 
-  PVector location;
+  PVector location;     
   PVector velocity;
   PVector acceleration;
-  float r;
+  float r;           // Effective radius of reach Boid
   float maxforce;    // Maximum steering force
   float maxspeed;    // Maximum speed
-  float SimSpeed;
+  float SimSpeed;    // Merges Max Speed and Force in order to alow for contol the speed at which things occur while maintianing the dynamics
   PImage icon;  // Image to represent the boid
 
   Boid(float x, float y, PImage display) {
     acceleration = new PVector(0, 0);
   icon = display;
-    // This is a new PVector method not yet implemented in JS
-    // velocity = PVector.random2D();
-
     // Leaving the code temporarily this way so that this example runs in JS
     float angle = random(TWO_PI);
     velocity = new PVector(cos(angle), sin(angle));
-
-
-    SimSpeed = 2.0;
+    
+    SimSpeed = 2.0; //The larger the SimSpeed value, the "faster" the simulation will proceed
 
     location = new PVector(x, y);
     r = 35.0;
@@ -257,7 +244,7 @@ class Boid {
     PVector sep = separate(boids);   // Separation
     PVector ali = align(boids);      // Alignment
     PVector coh = cohesion(boids);   // Cohesion
-    PVector mou = mouseAttraction();  // Mouse attraction
+    PVector mou = mouseAttraction();  //Atraction of Boids to Coursor 
     // Arbitrarily weight these forces
     sep.mult(Spar);
     ali.mult(1.0);
@@ -334,19 +321,13 @@ class Boid {
     if (location.x > width+r) location.x = -r;
     if (location.y > height+r) location.y = -r;
   }
-  
+  //Creates the attraction of boids to the cursor when the mouse is clicked
   PVector mouseAttraction(){
     PVector steer = new PVector(0,0,0);
     if(mousePressed){
       steer = new PVector(mouseX - location.x, mouseY - location.y, 0);    
     }
-     // As long as the vector is greater than 0
     if (steer.mag() > 0) {
-      // First two lines of code below could be condensed with new PVector setMag() method
-      // Not using this method until Processing.js catches up
-      // steer.setMag(maxspeed);
-
-      // Implement Reynolds: Steering = Desired - Velocity
       steer.normalize();
       steer.mult(maxspeed);
       steer.sub(velocity);
