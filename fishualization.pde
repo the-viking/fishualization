@@ -1,35 +1,43 @@
-Flock flock;
-boolean trails = false;
-PImage fish;
-PImage dollar;
-PImage backgroundImg;
+//Add General discription of how the code works and the program runs
+
+
+// Add works cited as well
+
+
+
+Flock flock;  // Flock value primary method of reffering to the simulation
+PImage fish;  // Image "fish" boids are rendered with
+PImage dollar; // Image "dollar" boids are rendered with
 PImage img;
-float fishSizeNum;
-int maxFish = 40;
-int maxWeight = 0;
+int maxFish = 40;  // Maximum Number of fish or Boids alowed in the simulation
+int maxWeight = 0;   
 int maxValue = 0;
-ArrayList<Year> years;
-Table data;
-int firstYear = 1993;
-int selYear = firstYear;
+ArrayList<Year> years;  // Array of years which the simulations data spans 
+Table data;  // Data used for info like fish weights and $ values
+int firstYear = 1993;  // First year referenced by the Sim  
+int selYear = firstYear;  // Initalizing the starting year of the sim 
 float oneFish;
 float oneDollar;
 int curr_weight;
 int curr_value;
-// odd levels are fish, even dollars
-int level = 1;
+int level = 1;  // odd levels are fish, even dollars
 int[][] pointsCovered;
 int imgY = 50;
 int imgX = 50;
 float zoom = 1;
 PImage displayShape;
+float Spar = 1.5;  // Tendancy of fish in the sim to separate (This value is  temporaraly changed on swap from fish to Krona)   
+int timer;  // Controls the duration of the increased Spar value after swap
 
-//Code to make fish separate
-float Spar = 1.5;
-int timer;
+// Experimental 
+// These vars only come into use as experimental features when the "a" key is pressed
+
+boolean trails = false;     // When set to true creates temp. trails behined fish 
+PImage backgroundImg;       // An image to be renedered in the background in experimental mode
+
+
 
 void setup() {
-  fishSizeNum = -10;
   size(1040, 1060);
   smooth();
   // load in data from csv, add it to Year array
@@ -199,8 +207,7 @@ void keyPressed() {
 }
 
 // The Boid class
-//Boids are the flocking body's in the simulation i.e. Fish or Krona 
-
+// Boids are the flocking body's in the simulation i.e. Fish or Krona 
 class Boid {
 
   PVector location;     
@@ -246,7 +253,7 @@ class Boid {
     PVector coh = cohesion(boids);   // Cohesion
     PVector mou = mouseAttraction();  //Atraction of Boids to Coursor 
     // Arbitrarily weight these forces
-    sep.mult(Spar);
+    sep.mult(Spar); // The Separtation value may be modulated in siuations like break-up of fish into dollars, by changing the Spar Var
     ali.mult(1.0);
     coh.mult(1.0);
     mou.mult(1.0);
@@ -266,7 +273,9 @@ class Boid {
     location.add(velocity);
     // Reset accelertion to 0 each cycle
     acceleration.mult(0);
+    
     //Loop creates momentary separation of fish on change in separation value from origional 1.5
+    // The Separtation value may be modulated in siuations like break-up of fish into dollars, by changing the Spar Var
     if(Spar != 1.5){
       timer = timer +1;
       print (timer);
@@ -308,8 +317,6 @@ class Boid {
     pushMatrix();
     translate(location.x, location.y);
     rotate(theta);
-
-    //shape( fish, fishSizeNum, fishSizeNum, 30, 30);
     image (icon, 0, -7);
     popMatrix();
   }
@@ -333,8 +340,6 @@ class Boid {
       steer.sub(velocity);
       steer.limit(maxforce);
     }
-    
-    
     return( steer );
   }
 
