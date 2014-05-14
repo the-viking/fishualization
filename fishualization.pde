@@ -1,7 +1,24 @@
-//Add General discription of how the code works and the program runs
+/*FISHUALIZATION
+
+  URL: https://github.com/the-viking/fishualization
 
 
-// Add works cited as well
+*/
+
+
+
+
+
+
+/*CITATIONS 
+
+  The basis for this implementation of comes from "Flocking" by Daniel Shiffman 
+  an implentation of Craig Reynold's Boids program.
+  URL:  https://code.google.com/p/processing/source/browse/trunk/processing/java/examples/Topics/Simulate/Flocking/Flocking.pde?r=9025
+  
+  Assistance on the attraction of boids to a clicked mouse came from "TfGuy44" on the processing formus
+  URL:  http://forum.processing.org/two/discussion/2366/flocking-with-ai-for-2d-games/p1
+*/
 
 
 
@@ -29,14 +46,14 @@ PImage displayShape;
 float Spar = 1.5;  // Tendancy of fish in the sim to separate (This value is  temporaraly changed on swap from fish to Krona)   
 int timer;  // Controls the duration of the increased Spar value after swap
 
-// Experimental 
+// EXPERIMENTAL
 // These vars only come into use as experimental features when the "a" key is pressed
 
 boolean trails = false;     // When set to true creates temp. trails behined fish 
 PImage backgroundImg;       // An image to be renedered in the background in experimental mode
 
 
-// Setup
+// SETUP
 // Handles the layout of the sim before it starts running 
 void setup() {
   size(1040, 1060);  // Controls the size of the window with which the simulation runs
@@ -89,6 +106,7 @@ void setup() {
 
 
 
+// DRAW
 
 void draw() {
 scale (zoom);
@@ -169,7 +187,7 @@ scale (zoom);
 
 
 
-
+// KEYPRESSED
 void keyPressed() {
   // when space bar is pressed, switch flock from dollars to fish or vice verse
   if (key==' ') {
@@ -510,7 +528,7 @@ class Flock {
 
 
 
-
+// YEAR
 class Year {
   String year;
   // weight of the catch, in tonnes
