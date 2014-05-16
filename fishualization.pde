@@ -1,6 +1,10 @@
 /*FISHUALIZATION
-
   URL: https://github.com/the-viking/fishualization
+
+  Created by: Erik Bonadonna, Benjamin Potts and Luna Zhang
+  In association with: Professor Pheobe Sengers and The Cornell University Culturally Embeded Computing Lab
+  
+  
 
 
 */
@@ -18,6 +22,10 @@
   
   Assistance on the attraction of boids to a clicked mouse came from "TfGuy44" on the processing formus
   URL:  http://forum.processing.org/two/discussion/2366/flocking-with-ai-for-2d-games/p1
+  
+  Fishing Datasets sourced from Statistics Iceland
+  URL:http://www.statice.is
+  
 */
 
 
