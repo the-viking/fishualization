@@ -1,8 +1,14 @@
+
+
 /*FISHUALIZATION
   URL: https://github.com/the-viking/fishualization
 
   Created by: Erik Bonadonna, Benjamin Potts and Luna Zhang
   In association with: Professor Pheobe Sengers and The Cornell University Culturally Embeded Computing Lab
+  
+  
+  
+  
   
   
 
