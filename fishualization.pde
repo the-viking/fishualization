@@ -1,24 +1,30 @@
-
-
 /*FISHUALIZATION
   URL: https://github.com/the-viking/fishualization
 
   Created by: Erik Bonadonna, Benjamin Potts and Luna Zhang
   In association with: Professor Pheobe Sengers and The Cornell University Culturally Embeded Computing Lab
-  
-  
-  
-  
-  
-  
 
-
+  Functions: 
+  
+  SPACEBAR: Swaps states from fish to krona or visa versa 
+  UP/DOWN: Changes the level of zoom on the fish ( Still in development) 
+  LEFT/RIGHT: Changes the year of data the simulation is based off 
+  A; Launches an experimental mode
+  CLICK AND HOLD; Attracts the fish to the location of the mouse in the sim window
+  
+  This program works by taking input in the form of a CSV file containing information on the catch and sale of fish 
+  from Icelandic fishing boats and converting it into a dynamic flock of fish whos frequency change with proportion
+  to the catch made each year. When Spacebar is pressed, these fish transform into icelandic Krona with proportion
+  the amount of money extracted per pound of fish each year.
+  
+  Fish and Krona are rendered by referencing .png files rather than more tratdiotional PShapes.
+  Fish and Krona are defined in the BOID CLASS with values of maximum speed and force 
+  These values are intern controlled by a Sim Speed value in order to keep them in proportion.
+  Additionally values such as separation and cohesion are defined givng boids a greater sense of ajency and realism.
+  
+ Information concering the weight, price and year to wich the progam reffers are rendered in the Draw loop 
+ Anything placed in this loop will be effected by anything placed above it in the loop and hold sway over anything below it. 
 */
-
-
-
-
-
 
 /*CITATIONS 
 
