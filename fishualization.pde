@@ -1,21 +1,61 @@
-Flock flock;
-boolean trails = false;
-PImage fish;
-PImage dollar;
-// background image, to be revealed by fish movement trails
-PImage backgroundImg;
+/*FISHUALIZATION
+  URL: https://github.com/the-viking/fishualization
+
+  Created by: Erik Bonadonna, Benjamin Potts and Luna Zhang
+  In association with: Professor Phoebe Sengers and The Cornell University Culturally Embeded Computing Lab
+
+  Functions: 
+  
+  SPACEBAR: Swaps states from fish to krona or visa versa 
+  UP/DOWN: Changes the level of zoom on the fish ( Still in development) 
+  LEFT/RIGHT: Changes the year of data the simulation is based off 
+  A; Launches an experimental mode
+  CLICK AND HOLD; Attracts the fish to the location of the mouse in the sim window
+  
+  This program works by taking input in the form of a CSV file containing information on the catch and sale of fish 
+  from Icelandic fishing boats and converting it into a dynamic flock of fish whos frequency change with proportion
+  to the catch made each year. When Spacebar is pressed, these fish transform into icelandic Krona with proportion
+  the amount of money extracted per pound of fish each year.
+  
+  Fish and Krona are rendered by referencing .png files rather than more tratdiotional PShapes.
+  Fish and Krona are defined in the BOID CLASS with values of maximum speed and force 
+  These values are intern controlled by a Sim Speed value in order to keep them in proportion.
+  Additionally values such as separation and cohesion are defined givng boids a greater sense of ajency and realism.
+  
+ Information concering the weight, price and year to wich the progam reffers are rendered in the Draw loop 
+ Anything placed in this loop will be effected by anything placed above it in the loop and hold sway over anything below it. 
+*/
+
+/*CITATIONS 
+
+  The basis for this implementation of comes from "Flocking" by Daniel Shiffman 
+  an implentation of Craig Reynold's Boids program.
+  URL:  https://code.google.com/p/processing/source/browse/trunk/processing/java/examples/Topics/Simulate/Flocking/Flocking.pde?r=9025
+  
+  Assistance on the attraction of boids to a clicked mouse came from "TfGuy44" on the processing formus
+  URL:  http://forum.processing.org/two/discussion/2366/flocking-with-ai-for-2d-games/p1
+  
+  Fishing Datasets sourced from Statistics Iceland
+  URL:http://www.statice.is
+  
+*/
+
+
+
+Flock flock;  // Flock value primary method of reffering to the simulation
+PImage fish;  // Image "fish" boids are rendered with
+PImage dollar; // Image "dollar" boids are rendered with
+PImage backgroundImg;       // An image to be renedered in the background in experimental mode
 PImage img;
-float fishSizeNum;
-int maxFish = 40;
-int maxWeight = 0;
+
+int maxFish = 40;  // Maximum Number of fish or Boids alowed in the simulation
+int maxWeight = 0;   
 int maxValue = 0;
-// Table to hold data from csv file
-Table data;
-// holds processed data from the table about each year
-ArrayList<Year> years;
-// initial year to display
-int firstYear = 1993;
-int selYear = firstYear;
+
+ArrayList<Year> years;  // Array of years which the simulations data spans 
+Table data;  // Data used for info like fish weights and $ values
+int firstYear = 1993;  // First year referenced by the Sim  
+int selYear = firstYear;  // Initalizing the starting year of the sim 
 
 // tracks the value/weight of one fish or dollar on-screen
 float oneFish;
@@ -24,25 +64,27 @@ float oneDollar;
 // tracks the total weight or value displayed
 int curr_weight;
 int curr_value;
-// odd levels are fish, even dollars
-int level = 1;
 
+int level = 1;  // odd levels are fish, even dollars
 // each element contains the transparency value for one pixel of the background image
 int[][] transparencyMatrix;
-
-// coordinates at which to display background image
 int imgY = 50;
-int imgX = 400;
-float zoom = 1;
+int imgX = 40;
+float zoom = 1;  // Modulates the zoom level of the simulation
+
 PImage displayShape;
+float Spar = 1.5;  // Tendancy of fish in the sim to separate (This value is  temporaraly changed on swap from fish to Krona)   
+int timer;  // Controls the duration of the increased Spar value after swap
 
-//Code to make fish separate
-float Spar = 1.5;
-int timer;
+// EXPERIMENTAL
+// These vars only come into use as experimental features when the "a" key is pressed
 
+boolean trails = false;     // When set to true creates temp. trails behined fish 
+
+
+// Handles the layout of the sim before it starts running 
 void setup() {
-  fishSizeNum = -10;
-  size(1040, 1060);
+  size(1040, 1060);  // Controls the size of the window with which the simulation runs
   smooth();
   // load in data from csv, add it to Year array
   years = new ArrayList<Year>();
@@ -88,6 +130,7 @@ void setup() {
   }
   fill(0);
 }
+
 
 void draw() {
 scale (zoom);
@@ -160,6 +203,9 @@ scale (zoom);
   text(selYear + "", width - 80, 35);
 }
 
+
+
+
 void keyPressed() {
   // when space bar is pressed, switch flock from dollars to fish or vice verse
   if (key==' ') {
@@ -207,42 +253,33 @@ void keyPressed() {
   }
 }
 
-//// Add a new boid when mouse is pressed
 void mouseDragged() {
-//  flock.addBoid(new Boid(mouseX, mouseY, fish));
  // ellipse(mouseX, mouseY, 4, 4);
 }
 
 
 
-
-
-
 // The Boid class
-
+// Boids are the flocking body's in the simulation i.e. Fish or Krona 
 class Boid {
 
-  PVector location;
+  PVector location;     
   PVector velocity;
   PVector acceleration;
-  float r;
+  float r;           // Effective radius of reach Boid
   float maxforce;    // Maximum steering force
   float maxspeed;    // Maximum speed
-  float SimSpeed;
+  float SimSpeed;    // Merges Max Speed and Force in order to alow for contol the speed at which things occur while maintianing the dynamics
   PImage icon;  // Image to represent the boid
 
   Boid(float x, float y, PImage display) {
     acceleration = new PVector(0, 0);
   icon = display;
-    // This is a new PVector method not yet implemented in JS
-    // velocity = PVector.random2D();
-
     // Leaving the code temporarily this way so that this example runs in JS
     float angle = random(TWO_PI);
     velocity = new PVector(cos(angle), sin(angle));
-
-
-    SimSpeed = 2.0;
+    
+    SimSpeed = 2.0; //The larger the SimSpeed value, the "faster" the simulation will proceed
 
     location = new PVector(x, y);
     r = 35.0;
@@ -267,9 +304,9 @@ class Boid {
     PVector sep = separate(boids);   // Separation
     PVector ali = align(boids);      // Alignment
     PVector coh = cohesion(boids);   // Cohesion
-    PVector mou = mouseAttraction();  // Mouse attraction
+    PVector mou = mouseAttraction();  //Atraction of Boids to Coursor 
     // Arbitrarily weight these forces
-    sep.mult(Spar);
+    sep.mult(Spar); // The Separtation value may be modulated in siuations like break-up of fish into dollars, by changing the Spar Var
     ali.mult(1.0);
     coh.mult(1.0);
     mou.mult(1.0);
@@ -289,10 +326,11 @@ class Boid {
     location.add(velocity);
     // Reset accelertion to 0 each cycle
     acceleration.mult(0);
+    
     //Loop creates momentary separation of fish on change in separation value from origional 1.5
+    // The Separtation value may be modulated in siuations like break-up of fish into dollars, by changing the Spar Var
     if(Spar != 1.5){
       timer = timer +1;
-      print (timer);
       if(timer == 6000){ 
        Spar = 1.5;
        timer = 0;
@@ -341,8 +379,6 @@ class Boid {
     pushMatrix();
     translate(location.x, location.y);
     rotate(theta);
-
-    //shape( fish, fishSizeNum, fishSizeNum, 30, 30);
     image (icon, 0, -7);
     popMatrix();
   }
@@ -354,26 +390,18 @@ class Boid {
     if (location.x > width+r) location.x = -r;
     if (location.y > height+r) location.y = -r;
   }
-  
+  //Creates the attraction of boids to the cursor when the mouse is clicked
   PVector mouseAttraction(){
     PVector steer = new PVector(0,0,0);
     if(mousePressed){
       steer = new PVector(mouseX - location.x, mouseY - location.y, 0);    
     }
-     // As long as the vector is greater than 0
     if (steer.mag() > 0) {
-      // First two lines of code below could be condensed with new PVector setMag() method
-      // Not using this method until Processing.js catches up
-      // steer.setMag(maxspeed);
-
-      // Implement Reynolds: Steering = Desired - Velocity
       steer.normalize();
       steer.mult(maxspeed);
       steer.sub(velocity);
       steer.limit(maxforce);
     }
-    
-    
     return( steer );
   }
 
@@ -468,7 +496,7 @@ class Boid {
       return new PVector(0, 0);
     }
   }
-}
+}  /////////// END BOID CLASS //////////////////
 
 
 
@@ -526,8 +554,11 @@ class Flock {
   int getSize() {
     return boids.size();
   }
-}
+}   /////////// END FLOCK CLASS //////////////////
 
+
+
+// YEAR
 class Year {
   String year;
   // weight of the catch, in tonnes
@@ -540,4 +571,4 @@ class Year {
     total_weight = weight;
     value = the_value;
   }
-}
+}  /////////// END YEAR CLASS //////////////////
