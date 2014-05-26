@@ -2,25 +2,37 @@ Flock flock;
 boolean trails = false;
 PImage fish;
 PImage dollar;
+// background image, to be revealed by fish movement trails
 PImage backgroundImg;
 PImage img;
 float fishSizeNum;
 int maxFish = 40;
 int maxWeight = 0;
 int maxValue = 0;
-ArrayList<Year> years;
+// Table to hold data from csv file
 Table data;
+// holds processed data from the table about each year
+ArrayList<Year> years;
+// initial year to display
 int firstYear = 1993;
 int selYear = firstYear;
+
+// tracks the value/weight of one fish or dollar on-screen
 float oneFish;
 float oneDollar;
+
+// tracks the total weight or value displayed
 int curr_weight;
 int curr_value;
 // odd levels are fish, even dollars
 int level = 1;
-int[][] pointsCovered;
+
+// each element contains the transparency value for one pixel of the background image
+int[][] transparencyMatrix;
+
+// coordinates at which to display background image
 int imgY = 50;
-int imgX = 50;
+int imgX = 400;
 float zoom = 1;
 PImage displayShape;
 
@@ -53,12 +65,13 @@ void setup() {
   flock = new Flock();
   fish = loadImage("SmallBlueTopFish.png");
   dollar = loadImage("IcelandKron.png");
-  backgroundImg = loadImage("rubber-duck.jpg");
+  backgroundImg = loadImage("Screenshot-3.png");
   img = createImage(backgroundImg.width, backgroundImg.height, RGB);
-  pointsCovered = new int[img.width][img.height];
+  // initialize transparency matrix
+  transparencyMatrix = new int[img.width][img.height];
   for (int x = 0; x < img.width; x++) {
     for (int y = 0; y < img.height; y++) {
-      pointsCovered[x][y] = 1;
+      transparencyMatrix[x][y] = 1;
     }
   }
 
@@ -78,28 +91,7 @@ void setup() {
 
 void draw() {
 scale (zoom);
-  //(fish, -140, -140);
 
-  if ((mouseX > imgX && mouseX < imgX + img.width ) && (mouseY > imgY && mouseY < imgY + img.height)) {
-      if(pointsCovered[mouseX - imgX][mouseY - imgY] <= 255) {
-        pointsCovered[mouseX - imgX][mouseY - imgY] += 10;
-        println(pointsCovered[mouseX - imgX][mouseY - imgY]);
-      }
-    }
-    if ( frameCount % 10 == 0 ) {
-      img.loadPixels();
-  for (int x = 0; x < img.width; x++) {
-    for (int y = 0; y < img.height; y++) {
-      int transparency = pointsCovered[x][y];
-      int index = y * img.width + x;
-      color c = color(red(backgroundImg.pixels[index]), green(backgroundImg.pixels[index]), blue(backgroundImg.pixels[index]), transparency);
-      img.pixels[index] = c;
-    }
-  }
-  img.updatePixels();
-    }
-  image (img, imgX, imgY);
-  //if (frameCount % 10 == 0) {
     // if trails is set, draw a translucent rectangle instead of an opaque background
     if(trails) {
       fill(255, 255, 255, 10);
@@ -108,8 +100,24 @@ scale (zoom);
       }
     }
     else {
-    background(255,255,255);
+      background(255,255,255);
     }
+    
+    // update image based on transparency values from transparencyMatrix
+  img.loadPixels();
+  for (int x = 0; x < img.width; x++) {
+    for (int y = 0; y < img.height; y++) {
+      int transparency = transparencyMatrix[x][y];
+      int index = y * img.width + x;
+      // set color of pixel to a new color based on transparency matrix and original image
+      color c = color(red(backgroundImg.pixels[index]), green(backgroundImg.pixels[index]), blue(backgroundImg.pixels[index]), transparency);
+      img.pixels[index] = c;
+    }
+  }
+  img.updatePixels();
+
+  image (img, imgX, imgY);
+  
   fill(0);
   // display the year on screen
   textSize(25);
@@ -121,14 +129,14 @@ scale (zoom);
   textSize(200);
   if ( frameCount % 10 == 0 || !trails ) {
   if (level % 2 == 1) {
-    text(curr_weight / 1000 + "", width/2 - 300, height/2 - 95);
+    text(curr_weight / 1000 + "", width/2 - 300, height/2 + 25 );
     textSize(75);
-    text("kilotonnes", 290, height/2);
+    text("kilotonnes", 290, height/2 + 120);
   }
   else {
-    text(curr_value / 1000, 200, height/2 - 95);
+    text(curr_value / 1000, 200, height/2 + 25);
     textSize(75);
-    text(" million Icelandic krona", 90, height/2);
+    text(" million Icelandic krona", 90, height/2 + 120);
   }
   }
   flock.run();
@@ -170,6 +178,7 @@ void keyPressed() {
     else if (keyCode == RIGHT && selYear < 2012) {
       selYear++;
     }
+    // zoom in or out on up/down kep presses
     else if (keyCode == UP) 
     {
       zoom += .03;
@@ -199,9 +208,10 @@ void keyPressed() {
 }
 
 //// Add a new boid when mouse is pressed
-//void mousePressed() {
+void mouseDragged() {
 //  flock.addBoid(new Boid(mouseX, mouseY, fish));
-//}
+ // ellipse(mouseX, mouseY, 4, 4);
+}
 
 
 
@@ -309,9 +319,19 @@ class Boid {
   }
 
   void render() {
-    if ((int(location.x) > imgX && int(location.x) < imgX + img.width ) && (int(location.y) > imgY && int(location.y) < imgY + img.height)) {
-      if(pointsCovered[int(location.x) - imgX][int(location.y) - imgY] <= 255) {
-        pointsCovered[int(location.x) - imgX][int(location.y) - imgY] += 10;
+    // increment transparency values within a certain distance of (int(location.x), int(location.Y))
+    for (int iY = -10; iY < 5; iY++) {
+      for (int iX = -10; iX < 4; iX++) {
+        // check to make sure the point is within the image
+        if ((int(location.x) + iX > imgX && int(location.x) + iX < imgX + img.width ) && (int(location.y) + iY > imgY && int(location.y) + iY < imgY + img.height)) {
+          // check that the transparency won't be going over the maximum value (255)
+          if (transparencyMatrix[int(location.x) + iX - imgX][int(location.y) +iY - imgY] <= 255 - 14) {
+            if (dist(int(location.x), int(location.y), int(location.x) + iX, int(location.y) + iY) < 4) {
+              transparencyMatrix[int(location.x) + iX - imgX][int(location.y) +iY - imgY] += 14;
+              println(transparencyMatrix[int(location.x) + iX - imgX][int(location.y) + iY - imgY]);
+            }
+          }
+        }
       }
     }
     // Draw a triangle rotated in the direction of velocity
@@ -457,7 +477,6 @@ class Boid {
 
 class Flock {
   ArrayList<Boid> boids; // An ArrayList for all the boids
-  String mode = "fish";
 
     Flock() {
     boids = new ArrayList<Boid>(); // Initialize the ArrayList
