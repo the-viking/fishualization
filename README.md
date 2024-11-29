@@ -8,9 +8,16 @@ Icelandic fishing boats. We were inspired to attempt to re-embody fish from the 
 Supported by Phoebe Sengers and Hrönn Brynjarsdóttir Holmer with [Culturally Embedded Computing](https://cemcom.infosci.cornell.edu) at Cornell University
 
 ### Functions: 
-SPACEBAR: Swaps states from fish to krona or visa versa UP/DOWN: Changes the level of zoom on the fish ( Still in development) LEFT/RIGHT: Changes the year of data the simulation is based off A; Launches an experimental mode CLICK AND HOLD; Attracts the fish to the location of the mouse in the sim window
+SPACEBAR: Swaps states from fish to krona or visa versa 
+UP/DOWN: Changes the level of zoom on the fish (still in development) 
+LEFT/RIGHT: Changes the year of data the simulation is based off 
+A; Launches an experimental mode 
+CLICK AND HOLD; Attracts the fish to the location of the mouse in the sim window
+
 This program works by taking input in the form of a CSV file containing information on the catch and sale of fish from Icelandic fishing boats and converting it into a dynamic flock of fish whose frequency changes with proportion to the catch made each year. When Spacebar is pressed, these fish transform into Icelandic Krona with proportion to the amount of money extracted per pound of fish each year.
+
 Fish and Krona are rendered by referencing .png files rather than more traditional PShapes. Fish and Krona are defined in the BOID CLASS with values of maximum speed and force These values are in turn controlled by a Sim Speed value in order to keep them in proportion. Additionally values such as separation and cohesion are defined giving boids a greater sense of agency and realism.
+
 Information concerning the weight, price and year to which the program refers are rendered in the Draw loop Anything placed in this loop will be affected by anything placed above it in the loop and hold sway over anything below it.
 
 
