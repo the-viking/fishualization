@@ -2,7 +2,7 @@ fishualization
 ==============
 Created by: Erik Bonadonna, Benjamin Potts and Luna Zhang
 
-A research project the relationship between fish, data and money. Using [Processing](https://processing.org/), we developed a data visualization using data from
+A research project exploring the relationship between fish, data and money. Using [Processing](https://processing.org/), we developed a data visualization using data from
 Icelandic fishing boats. We were inspired to attempt to re-embody fish from the data, and see what could be lost or gained from the process. 
 
 Supported by Phoebe Sengers and Hrönn Brynjarsdóttir Holmer with [Culturally Embedded Computing](https://cemcom.infosci.cornell.edu) at Cornell University
