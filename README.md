@@ -40,4 +40,4 @@ Supported by Phoebe Sengers and Hrönn Brynjarsdóttir Holmer with [Culturally E
   Fishing Datasets sourced from Statistics Iceland
   URL:http://www.statice.is
 
-    ![Screenshot of program](./screenshot-4.png)
+![Screenshot of program](./screenshot-4.png)
